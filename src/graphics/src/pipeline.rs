@@ -1,0 +1,110 @@
+use gfx::{Slice, PipelineState, Encoder};
+use gfx::state::{Rasterizer};
+
+use ::{Resources, CommandBuffer, Shaders};
+
+pub type Index = u32;
+
+pub fn make_shaders() -> Shaders {
+    Shaders::new("spritesheet_150_v.glsl", "spritesheet_150_f.glsl")
+}
+
+gfx_defines! {
+    vertex Vertex {
+        pos: [f32; 3] = "a_Pos",
+        uv: [f32; 2] = "a_Uv",
+    }
+
+    constant TextureData {
+        tint: [f32; 4] = "u_Tint",
+        spritesheet_rect: [f32; 4] = "u_SpritesheetRect",
+        spritesheet_size: [f32; 2] = "u_SpritesheetSize",
+        mirror_x: bool = "u_MirrorX",
+        mirror_y: bool = "u_MirrorY",
+    }
+
+    constant ProjectionData {
+        model: [[f32; 4]; 4] = "u_Model",
+        view: [[f32; 4]; 4] = "u_View",
+        proj: [[f32; 4]; 4] = "u_Proj",
+    }
+
+    pipeline pipe {
+        vbuf: gfx::VertexBuffer<Vertex> = (),
+
+        projection_cb: gfx::ConstantBuffer<ProjectionData> = "b_ProjData",
+
+        spritesheet: gfx::TextureSampler<[f32; 4]> = "t_Texture",
+
+        texture_data: gfx::ConstantBuffer<TextureData> = "b_TextureData",
+
+        out_color: ::gfx::BlendTarget<::ColorFormat> = ("Target0", gfx::state::MASK_ALL, gfx::preset::blend::ALPHA),
+        out_depth: gfx::DepthTarget<::DepthFormat> = ::gfx::preset::depth::LESS_EQUAL_WRITE,
+    }
+}
+
+impl Vertex {
+    pub fn new(pos: [f32; 3], uv: [f32; 2]) -> Vertex {
+        Vertex {
+            pos: pos,
+            uv: uv,
+        }
+    }
+}
+
+pub struct Bundle {
+    slice: Slice<Resources>,
+    pso: PipelineState<Resources, pipe::Meta>,
+    pub data: pipe::Data<Resources>,
+}
+
+impl Bundle {
+    pub fn new(
+        slice: Slice<Resources>,
+        pso: PipelineState<Resources, pipe::Meta>,
+        data: pipe::Data<Resources>,
+    ) -> Bundle {
+        Bundle {
+            slice: slice,
+            pso: pso,
+            data: data,
+        }
+    }
+
+    pub fn encode(&self, encoder: &mut Encoder<Resources, CommandBuffer>) {
+        encoder.draw(&self.slice, &self.pso, &self.data);
+    }
+}
+
+#[derive(Debug)]
+pub struct Packet {
+    vertices: Vec<Vertex>,
+    indices: Vec<Index>,
+    rasterizer: Rasterizer,
+}
+
+impl Packet {
+    pub fn new(
+        vertices: Vec<Vertex>,
+        indices: Vec<Index>,
+        rasterizer: Rasterizer
+    ) -> Packet {
+        Packet {
+            vertices: vertices,
+            indices: indices,
+            rasterizer: rasterizer,
+        }
+    }
+
+    pub fn get_vertices(&self) -> &[Vertex] {
+        self.vertices.as_slice()
+    }
+
+    pub fn get_indices(&self) -> &[Index] {
+        self.indices.as_slice()
+    }
+
+    pub fn get_rasterizer(&self) -> Rasterizer {
+        self.rasterizer
+    }
+}
