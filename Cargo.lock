@@ -73,6 +73,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "core"
 version = "0.1.0"
 dependencies = [
+ "event 0.1.0",
  "graphics 0.1.0",
  "math 0.1.0",
 ]

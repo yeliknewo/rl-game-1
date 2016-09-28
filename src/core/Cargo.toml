@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Kiley Owen <yelikdev@gmail.com>"]
 
 [dependencies]
+event = { path="../event" }
 graphics = { path="../graphics" }
 math = { path="../math" }

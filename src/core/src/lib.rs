@@ -1,6 +1,8 @@
+extern crate event;
 extern crate graphics;
 extern crate math;
 
+use event::{two_way_channel};
 use graphics::{build_graphics};
 use math::{OrthographicHelper};
 
@@ -18,7 +20,7 @@ pub fn start() {
 
     let ((mut out_color, mut out_depth), mut factory, encoder, window, mut device) = build_graphics(640, 480);
 
-    let (mut event_dev, game_event) = DevEventHub::new();
+    let (mut event_dev, game_event) = two_way_channel();
 
     event_dev.send_to_render(ToRender::GraphicsData(out_color.clone(), out_depth.clone()));
 
