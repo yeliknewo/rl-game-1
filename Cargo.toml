@@ -11,4 +11,5 @@ core = { path="src/core" }
 event = { path="src/event" }
 graphics = { path="src/graphics" }
 math = { path="src/math" }
+systems = { path="src/systems" }
 utils = { path="src/utils" }

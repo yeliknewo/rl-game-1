@@ -1,10 +1,12 @@
 extern crate event;
 extern crate graphics;
 extern crate math;
+extern crate systems;
 
-use event::{two_way_channel};
+use event::{two_way_channel, FrontChannel, BackChannel};
 use graphics::{build_graphics};
 use math::{OrthographicHelper};
+use systems::render::{ToRender};
 
 pub fn start() {
     let (width, height): (u32, u32) = (640, 480);
@@ -20,10 +22,10 @@ pub fn start() {
 
     let ((mut out_color, mut out_depth), mut factory, encoder, window, mut device) = build_graphics(640, 480);
 
-    let (mut event_dev, game_event) = two_way_channel();
+    let (mut render_event_dev, render_game_event) = two_way_channel::<ToRender, ()>();
 
-    event_dev.send_to_render(ToRender::GraphicsData(out_color.clone(), out_depth.clone()));
+    render_event_dev.send_to(ToRender::GraphicsData(out_color.clone(), out_depth.clone()));
 
-    event_dev.send_to_render(ToRender::Encoder(encoder.clone_empty()));
-    event_dev.send_to_render(ToRender::Encoder(encoder));
+    render_event_dev.send_to(ToRender::Encoder(encoder.clone_empty()));
+    render_event_dev.send_to(ToRender::Encoder(encoder));
 }

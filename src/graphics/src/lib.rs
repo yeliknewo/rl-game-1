@@ -10,7 +10,6 @@ pub mod pipeline;
 pub mod shaders;
 pub mod textures;
 
-use gfx::{Encoder};
 use gfx::handle::{RenderTargetView, DepthStencilView};
 use gfx::format::{Rgba8, DepthStencil};
 
@@ -26,10 +25,15 @@ pub type CommandBuffer = gfx_device_gl::CommandBuffer;
 pub type ColorFormat = Rgba8;
 pub type DepthFormat = DepthStencil;
 
+pub type OutColor = RenderTargetView<Resources, ColorFormat>;
+pub type OutDepth = DepthStencilView<Resources, DepthFormat>;
+
+pub type Encoder = gfx::Encoder<Resources, CommandBuffer>;
+
 pub fn build_graphics(width: u32, height: u32) -> (
-    (RenderTargetView<Resources, ColorFormat>, DepthStencilView<Resources, DepthFormat>),
+    (OutColor, OutDepth),
     GlFactory,
-    Encoder<Resources, CommandBuffer>,
+    Encoder,
     Window,
     Device
 ) {
