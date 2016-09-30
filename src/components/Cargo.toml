@@ -1,5 +1,5 @@
 [package]
-name = "systems"
+name = "components"
 version = "0.1.0"
 authors = ["Kiley Owen <yelikdev@gmail.com>"]
 
@@ -7,7 +7,5 @@ authors = ["Kiley Owen <yelikdev@gmail.com>"]
 specs = "0.7.0"
 log = "0.3.6"
 
-components = { path="../components" }
-event = { path="../event" }
-graphics = { path="../graphics" }
+math = { path="../math" }
 utils = { path="../utils" }

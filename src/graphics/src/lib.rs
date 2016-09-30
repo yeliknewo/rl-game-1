@@ -10,6 +10,8 @@ pub mod pipeline;
 pub mod shaders;
 pub mod textures;
 
+pub use ::pipeline::{Bundle, Index, Packet, make_shaders, ProjectionData, TextureData};
+
 use gfx::handle::{RenderTargetView, DepthStencilView};
 use gfx::format::{Rgba8, DepthStencil};
 
