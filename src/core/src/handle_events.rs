@@ -1,6 +1,8 @@
-use glutin::{Window, VirtualKeyCode};
-use glutin::Event::{MouseMoved, KeyboardInput, Closed, MouseInput, Resized};
-use glutin::ElementState::{Pressed, Released};
+// use glutin::{Window, VirtualKeyCode};
+// use glutin::Event::{MouseMoved, KeyboardInput, Closed, MouseInput, Resized};
+// use glutin::ElementState::{Pressed, Released};
+
+use sdl2::video::Window;
 
 use event::{BackChannel};
 use systems::control::{ToControl};

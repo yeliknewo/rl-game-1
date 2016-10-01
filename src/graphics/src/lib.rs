@@ -7,7 +7,7 @@ extern crate utils;
 pub use dependencies::{find_folder, gfx_device_gl, gfx_window_glutin, glutin, sdl2, gfx_window_sdl, image};
 
 use gfx::handle::{RenderTargetView, DepthStencilView};
-use gfx::format::{Rgba8, DepthStencil};
+use gfx::format::{Srgba8, DepthStencil};
 
 pub mod pipeline;
 pub mod shaders;
@@ -21,7 +21,7 @@ pub type GlDevice = gfx_device_gl::Device;
 pub type GlFactory = gfx_device_gl::Factory;
 pub type Resources = gfx_device_gl::Resources;
 pub type CommandBuffer = gfx_device_gl::CommandBuffer;
-pub type ColorFormat = Rgba8;
+pub type ColorFormat = Srgba8;
 pub type DepthFormat = DepthStencil;
 pub type OutColor = RenderTargetView<Resources, ColorFormat>;
 pub type OutDepth = DepthStencilView<Resources, DepthFormat>;
@@ -33,8 +33,30 @@ pub use gfx::{Device, Primitive};
 pub use gfx::state::{Rasterizer};
 pub use gfx::tex::{FilterMethod, SamplerInfo, WrapMode};
 
-pub fn build_graphics_sdl(title: String, width: u32, height: u32) {
+pub fn build_graphics_sdl(title: String, width: u32, height: u32) -> (
+    (OutColor, OutDepth),
+    GlFactory,
+    Encoder,
+    sdl2::video::Window,
+    GlDevice
+) {
+    let sdl = sdl2::init().unwrap();
 
+    let mut builder = sdl.video().unwrap().window(title.as_str(), width, height);
+    let (window, _, device, mut factory, out_color, out_depth) = gfx_window_sdl::init(&mut builder); //_ = glcontext
+
+    let encoder = factory.create_command_buffer().into();
+
+    (
+        (
+            out_color,
+            out_depth
+        ),
+        factory,
+        encoder,
+        window,
+        device
+    )
 }
 
 pub fn build_graphics_glutin(title: String, width: u32, height: u32) -> (
