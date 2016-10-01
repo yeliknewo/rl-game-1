@@ -4,4 +4,12 @@ version = "0.1.0"
 authors = ["Kiley Owen <yelikdev@gmail.com>"]
 
 [dependencies]
-utils = { path="../utils" }
+# art = { path="../art" }
+components = { path="../components" }
+# core = { path="../core" }
+dependencies = { path="../dependencies" }
+# event = { path="../event" }
+# graphics = { path="../graphics" }
+# math = { path="../math" }
+# systems = { path="../systems" }
+# utils = { path="../utils" }

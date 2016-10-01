@@ -3,6 +3,7 @@ extern crate log;
 
 extern crate art;
 extern crate components;
+extern crate dependencies;
 extern crate event;
 extern crate graphics;
 extern crate math;
@@ -11,10 +12,10 @@ extern crate utils;
 
 use std::thread;
 
+use components::{WindowId};
 use event::{two_way_channel};
 use math::{OrthographicHelper};
 use systems::render::{RenderSystemSend, ToRender};
-use utils::{WindowId};
 
 mod game;
 mod handle_events;
@@ -50,8 +51,6 @@ pub fn start() {
 
     let (mut render_event_core, render_event_game) = two_way_channel();
     let (mut control_event_core, control_event_game) = two_way_channel();
-
-
 
     let (out_color_1, out_depth_1) = match render_event_dev_1.recv_from() {
         FromRenderThread::ToRender(ToRender::GraphicsData(out_color, out_depth)) => (out_color, out_depth),
@@ -93,7 +92,6 @@ pub fn start() {
 
     warn!("Entering Main Loop");
     'main: loop {
-
         if let Some(event) = render_event_core.try_recv_from() {
             match event {
                 (WindowId::First, event) => render_event_dev_1.send_to(ToRenderThread::FromRender(event)),

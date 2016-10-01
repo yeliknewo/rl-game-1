@@ -1,9 +1,7 @@
-#[macro_use]
-extern crate log;
-extern crate env_logger;
-extern crate cgmath;
-
+extern crate dependencies;
 extern crate utils;
+
+pub use dependencies::{cgmath};
 
 pub mod ortho_helper;
 

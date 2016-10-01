@@ -1,8 +1,8 @@
-extern crate utils;
+extern crate components;
 
 use std::sync::mpsc::{Sender, Receiver, channel, TryRecvError};
 
-use utils::{WindowId};
+use components::{WindowId};
 
 pub type WindowedEvent<T> = (WindowId, T);
 

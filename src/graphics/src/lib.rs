@@ -1,11 +1,10 @@
 #[macro_use]
 extern crate gfx;
-extern crate gfx_device_gl;
-extern crate gfx_window_glutin;
-extern crate glutin;
-extern crate image;
 
+extern crate dependencies;
 extern crate utils;
+
+pub use dependencies::{find_folder, gfx_device_gl, gfx_window_glutin, glutin, image};
 
 use gfx::handle::{RenderTargetView, DepthStencilView};
 use gfx::format::{Rgba8, DepthStencil};
@@ -38,7 +37,7 @@ pub use gfx::{Device, Primitive};
 pub use gfx::state::{Rasterizer};
 pub use gfx::tex::{FilterMethod, SamplerInfo, WrapMode};
 
-pub fn build_graphics(width: u32, height: u32) -> (
+pub fn build_graphics(title: String, width: u32, height: u32) -> (
     (OutColor, OutDepth),
     GlFactory,
     Encoder,
@@ -46,7 +45,7 @@ pub fn build_graphics(width: u32, height: u32) -> (
     GlDevice
 ) {
     let builder = WindowBuilder::new()
-        .with_title("RL_GAME_1")
+        .with_title(title)
         .with_dimensions(width, height);
         // .with_vsync();
 

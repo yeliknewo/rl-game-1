@@ -1,11 +1,14 @@
 use art::{layers, tiles};
 use components::{Camera, RenderData, RenderId, Transform};
+pub use dependencies::{specs, time};
 use event::{BackChannel};
 use math::{OrthographicHelper, Point3, Vector3};
 use systems::render::{RenderSystem, RenderSystemSend, WindowedToRender, WindowedFromRender};
 use systems::control::{ControlSystem, WindowedToControl, WindowedFromControl};
-use systems::{World, Planner};
-use utils::{Delta, FpsCounter, precise_time_ns};
+use utils::{Delta, FpsCounter};
+
+use self::specs::{World, Planner};
+use self::time::{precise_time_ns};
 
 pub struct Game {
     planner: Planner<Delta>,

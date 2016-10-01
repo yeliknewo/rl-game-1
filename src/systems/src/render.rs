@@ -2,10 +2,10 @@ use std::sync::{Arc};
 
 use specs::{System, RunArg};
 
-use components::{RenderId, Transform, Camera, RenderData};
+use components::{RenderId, Transform, Camera, RenderData, WindowId};
 use event::{BackChannel, WindowedEvent};
 use graphics::{OutColor, OutDepth, Encoder, Bundle, Shaders, make_shaders, ProjectionData, TextureData, GlFactory, Packet, RlTexture, Primitive, pipe, FilterMethod, WrapMode, SamplerInfo, FactoryExt, Factory};
-use utils::{Delta, WindowId};
+use utils::{Delta};
 
 pub enum ToRender {
     GraphicsData(OutColor, OutDepth),
@@ -45,13 +45,22 @@ impl RenderSystem {
             )
         );
 
+        // match window_id {
+        //     WindowId::First => {
+        //         warn!("rendering to first window");
+        //     },
+        //     WindowId::Second => {
+        //         warn!("rendering to second window");
+        //     },
+        // }
+
         match window_id {
             WindowId::First => {
                 encoder.clear(&self.sys.out_color_1, [1.0, 1.0, 1.0, 1.0]);
                 encoder.clear_depth(&self.sys.out_depth_1, 1.0);
             },
             WindowId::Second => {
-                encoder.clear(&self.sys.out_color_2, [1.0, 1.0, 1.0, 1.0]);
+                encoder.clear(&self.sys.out_color_2, [0.5, 0.5, 0.5, 1.0]);
                 encoder.clear_depth(&self.sys.out_depth_2, 1.0);
             },
         }

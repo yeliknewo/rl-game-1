@@ -5,11 +5,11 @@ authors = ["Kiley Owen <yelikdev@gmail.com>"]
 
 [dependencies]
 log = "0.3.6"
-env_logger = "0.3.5"
 
 art = { path="src/art" }
 components = { path="src/components" }
 core = { path="src/core" }
+dependencies = { path="src/dependencies" }
 event = { path="src/event" }
 graphics = { path="src/graphics" }
 math = { path="src/math" }
