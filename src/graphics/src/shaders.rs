@@ -1,8 +1,9 @@
 use std::io::{BufReader, Read};
 use std::fs::{File};
 
-use find_folder::{Search};
+use utils::{Search};
 
+#[derive(Debug)]
 pub struct Shaders {
     vertex: Vec<u8>,
     fragment: Vec<u8>,

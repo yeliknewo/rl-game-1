@@ -1,5 +1,6 @@
 use ::Delta;
 
+#[derive(Debug)]
 pub struct FpsCounter {
     current_delta: Delta,
     frames: u32,
@@ -23,7 +24,7 @@ impl FpsCounter {
             if self.frames < 55 {
                 warn!("FPS Low: {}", self.frames);
             } else {
-                info!("FPS: {}", self.frames);
+                warn!("FPS: {}", self.frames);
             }
             self.frames = 0;
         }

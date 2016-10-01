@@ -2,6 +2,7 @@
 name = "rl-game-1"
 version = "0.1.0"
 dependencies = [
+ "art 0.1.0",
  "components 0.1.0",
  "core 0.1.0",
  "env_logger 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -30,6 +31,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "approx"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "art"
+version = "0.1.0"
+dependencies = [
+ "graphics 0.1.0",
+]
 
 [[package]]
 name = "atom"
@@ -106,10 +114,14 @@ dependencies = [
 name = "core"
 version = "0.1.0"
 dependencies = [
+ "art 0.1.0",
+ "components 0.1.0",
  "event 0.1.0",
  "graphics 0.1.0",
+ "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "math 0.1.0",
  "systems 0.1.0",
+ "utils 0.1.0",
 ]
 
 [[package]]
@@ -202,6 +214,9 @@ dependencies = [
 [[package]]
 name = "event"
 version = "0.1.0"
+dependencies = [
+ "utils 0.1.0",
+]
 
 [[package]]
 name = "find_folder"
@@ -357,12 +372,12 @@ dependencies = [
 name = "graphics"
 version = "0.1.0"
 dependencies = [
- "find_folder 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "gfx 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gfx_device_gl 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "gfx_window_glutin 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "glutin 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "image 0.10.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "utils 0.1.0",
 ]
 
 [[package]]
@@ -803,7 +818,9 @@ name = "utils"
 version = "0.1.0"
 dependencies = [
  "env_logger 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "find_folder 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "time 0.1.35 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

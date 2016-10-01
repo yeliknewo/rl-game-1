@@ -7,4 +7,7 @@ extern crate event;
 extern crate graphics;
 extern crate utils;
 
+pub use specs::{World, Planner};
+
+pub mod control;
 pub mod render;

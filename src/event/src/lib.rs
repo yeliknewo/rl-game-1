@@ -1,4 +1,10 @@
+extern crate utils;
+
 use std::sync::mpsc::{Sender, Receiver, channel, TryRecvError};
+
+use utils::{WindowId};
+
+pub type WindowedEvent<T> = (WindowId, T);
 
 pub type TwoWayChannel<T, F> = (FrontChannel<T, F>, BackChannel<T, F>);
 
@@ -12,6 +18,7 @@ pub fn two_way_channel<T, F>() -> TwoWayChannel<T, F> {
     )
 }
 
+#[derive(Debug)]
 pub struct FrontChannel<T, F> {
     send_to: Sender<T>,
     recv_from: Receiver<F>,
@@ -30,7 +37,7 @@ impl<T, F> FrontChannel<T, F> {
     }
 
     pub fn recv_from(&mut self) -> F {
-        self.recv_from.recv().unwrap()
+        self.recv_from.recv().unwrap_or_else(|err| panic!("recv from error: {}", err))
     }
 
     pub fn try_recv_from(&mut self) -> Option<F> {
@@ -42,6 +49,7 @@ impl<T, F> FrontChannel<T, F> {
     }
 }
 
+#[derive(Debug)]
 pub struct BackChannel<T, F> {
     send_from: Sender<F>,
     recv_to: Receiver<T>,
@@ -60,7 +68,7 @@ impl<T, F> BackChannel<T, F> {
     }
 
     pub fn recv_to(&mut self) -> T {
-        self.recv_to.recv().unwrap()
+        self.recv_to.recv().unwrap_or_else(|err| panic!("recv to error: {}", err))
     }
 
     pub fn try_recv_to(&mut self) -> Option<T> {

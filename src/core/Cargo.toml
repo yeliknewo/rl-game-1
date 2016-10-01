@@ -4,7 +4,12 @@ version = "0.1.0"
 authors = ["Kiley Owen <yelikdev@gmail.com>"]
 
 [dependencies]
+log = "0.3.6"
+
+art = { path="../art" }
+components = { path="../components" }
 event = { path="../event" }
 graphics = { path="../graphics" }
 math = { path="../math" }
 systems = { path="../systems" }
+utils = { path="../utils" }

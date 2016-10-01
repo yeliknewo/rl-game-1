@@ -32,7 +32,7 @@ gfx_defines! {
     pipeline pipe {
         vbuf: gfx::VertexBuffer<Vertex> = (),
 
-        projection_cb: gfx::ConstantBuffer<ProjectionData> = "b_ProjData",
+        projection_data: gfx::ConstantBuffer<ProjectionData> = "b_ProjData",
 
         spritesheet: gfx::TextureSampler<[f32; 4]> = "t_Texture",
 
