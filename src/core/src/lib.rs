@@ -13,6 +13,7 @@ extern crate utils;
 use std::thread;
 
 use components::{WindowId};
+pub use dependencies::{glutin};
 use event::{two_way_channel};
 use math::{OrthographicHelper};
 use systems::render::{RenderSystemSend, ToRender};

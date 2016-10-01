@@ -4,12 +4,10 @@ extern crate gfx;
 extern crate dependencies;
 extern crate utils;
 
-pub use dependencies::{find_folder, gfx_device_gl, gfx_window_glutin, glutin, image};
+pub use dependencies::{find_folder, gfx_device_gl, gfx_window_glutin, glutin, sdl2, gfx_window_sdl, image};
 
 use gfx::handle::{RenderTargetView, DepthStencilView};
 use gfx::format::{Rgba8, DepthStencil};
-
-use glutin::{WindowBuilder};
 
 pub mod pipeline;
 pub mod shaders;
@@ -31,20 +29,22 @@ pub type Encoder = gfx::Encoder<Resources, CommandBuffer>;
 pub type RlTexture = gfx::handle::ShaderResourceView<Resources, [f32; 4]>;
 
 pub use gfx::traits::{Factory, FactoryExt};
-pub use glutin::{Window, Event, VirtualKeyCode, ElementState, MouseButton};
-pub use gfx_window_glutin::{update_views};
 pub use gfx::{Device, Primitive};
 pub use gfx::state::{Rasterizer};
 pub use gfx::tex::{FilterMethod, SamplerInfo, WrapMode};
 
-pub fn build_graphics(title: String, width: u32, height: u32) -> (
+pub fn build_graphics_sdl(title: String, width: u32, height: u32) {
+
+}
+
+pub fn build_graphics_glutin(title: String, width: u32, height: u32) -> (
     (OutColor, OutDepth),
     GlFactory,
     Encoder,
-    Window,
+    glutin::Window,
     GlDevice
 ) {
-    let builder = WindowBuilder::new()
+    let builder = glutin::WindowBuilder::new()
         .with_title(title)
         .with_dimensions(width, height);
         // .with_vsync();

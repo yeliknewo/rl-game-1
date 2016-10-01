@@ -2,12 +2,13 @@ use std::thread::{self, JoinHandle};
 
 use art::{make_square_render, tiles};
 use components::{RenderId, WindowId};
-pub use dependencies::{find_folder};
+pub use dependencies::{find_folder, gfx_window_glutin};
 use event::{BackChannel};
-use graphics::{build_graphics, update_views, load_texture, Device};
+use graphics::{build_graphics_glutin, load_texture, Device};
 use systems::render::{RenderSystemSend, ToRender, FromRender};
 use systems::control::{ToControl, FromControl};
 
+use self::gfx_window_glutin::{update_views};
 use self::find_folder::{Search};
 
 use ::handle_events::handle_events;
@@ -26,7 +27,7 @@ pub enum FromRenderThread {
 
 pub fn start(window_id: WindowId, mut back_channel: BackChannel<ToRenderThread, FromRenderThread>) -> JoinHandle<()> {
     thread::spawn(move || {
-        let ((mut out_color, mut out_depth), mut factory, encoder, mut window, mut device) = build_graphics(match window_id {
+        let ((mut out_color, mut out_depth), mut factory, encoder, mut window, mut device) = build_graphics_glutin(match window_id {
             WindowId::First => "First".to_string(),
             WindowId::Second => "Second".to_string(),
         }, 640, 480);

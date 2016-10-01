@@ -7,7 +7,7 @@ extern crate event;
 extern crate graphics;
 extern crate utils;
 
-pub use dependencies::{specs};
+pub use dependencies::{specs, glutin};
 
 pub mod control;
 pub mod render;

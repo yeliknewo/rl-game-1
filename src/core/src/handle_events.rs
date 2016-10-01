@@ -1,7 +1,8 @@
+use glutin::{Window, VirtualKeyCode};
+use glutin::Event::{MouseMoved, KeyboardInput, Closed, MouseInput, Resized};
+use glutin::ElementState::{Pressed, Released};
+
 use event::{BackChannel};
-use graphics::{Window, VirtualKeyCode};
-use graphics::Event::{MouseMoved, KeyboardInput, Closed, MouseInput, Resized};
-use graphics::ElementState::{Pressed, Released};
 use systems::control::{ToControl};
 
 use ::render_thread::{FromRenderThread, ToRenderThread};

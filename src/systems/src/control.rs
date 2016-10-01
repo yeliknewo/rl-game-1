@@ -1,7 +1,7 @@
 use specs::{System, RunArg};
+use glutin::{MouseButton};
 
 use event::{BackChannel, WindowedEvent};
-use graphics::{MouseButton};
 use utils::{Delta};
 
 #[derive(Debug)]
