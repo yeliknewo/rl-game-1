@@ -1,5 +1,6 @@
 use std::collections::{HashMap};
 
+use math::{Vector3};
 use specs::{System, RunArg};
 
 use components::{RenderId, Transform, Camera, RenderData};
@@ -37,10 +38,10 @@ impl RenderSystem {
         use specs::Join;
 
         // warn!("Starting Render");
-        let (render_ids, transforms, mut cameras, mut render_datas) = arg.fetch(|w|
+        let (render_ids, mut transforms, mut cameras, mut render_datas) = arg.fetch(|w|
             (
                 w.read::<RenderId>(),
-                w.read::<Transform>(),
+                w.write::<Transform>(),
                 w.write::<Camera>(),
                 w.write::<RenderData>()
             )
@@ -52,6 +53,8 @@ impl RenderSystem {
             encoder.clear(&out.0, [1.0, 0.0, 0.0, 1.0]);
         } else {
             encoder.clear(&out.0, [0.0, 0.0, 1.0, 1.0]);
+            self.back_channel.send_from((window_id, FromRender::Encoder(encoder)));
+            return;
         }
 
         encoder.clear_depth(&out.1, 1.0);
@@ -74,14 +77,18 @@ impl RenderSystem {
 
         let mut datas = vec!();
 
-        for (render_id, transform, mut render_data) in (&render_ids, &transforms, &mut render_datas).iter() {
+        for (render_id, transform, mut render_data) in (&render_ids, &mut transforms, &mut render_datas).iter() {
+            // warn!("{:?}, {:?}", window_id, render_id.clone_window_id());
             if render_id.clone_window_id() != window_id {
                 // warn!("Render Ids: {:?}, {:?}", render_id.clone_window_id(), &window_id);
                 continue;
             }
+
+            transform.add_pos(Vector3::new(0.01, 0.0, 0.0));
+
             let mut projection_data = None;
 
-            if dirty_cam {
+            if true {//dirty_cam || transform.take_dirty() {
                 projection_data = Some(
                     ProjectionData {
                         model: transform.get_model().into(),

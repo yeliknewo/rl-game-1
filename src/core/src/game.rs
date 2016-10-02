@@ -51,8 +51,6 @@ impl Game {
             ))
             .build();
 
-
-
         for (_, render_id) in &render_ids {
             warn!("Render Id: {:?}", render_id);
             planner.mut_world().create_now()

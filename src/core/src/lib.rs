@@ -168,11 +168,16 @@ pub fn start() {
                         break 'main;
                     }
 
-                    let mut sdl_graphic = sdl_graphics.get_mut(&window_id).unwrap_or_else(|| panic!("Unable to find SdlGraphic for: {:?}", window_id));
+                    let sdl_graphic = sdl_graphics.get_mut(&window_id).unwrap_or_else(|| panic!("Unable to find SdlGraphic for: {:?}", window_id));
 
                     // warn!("Making Context Current");
-                    // sdl_graphic.get_window().gl_make_current(sdl_graphic.get_gl_context()).unwrap_or_else(|err| panic!("fuck off"));
-                    sdl_graphic.get_window().gl_set_context_to_current().unwrap_or_else(|err| panic!("Error while making context current: {:?}", err));
+                    warn!("Before: {:?}", sdl_graphic.get_gl_context().is_current());
+                    if !sdl_graphic.get_gl_context().is_current() {
+                        sdl_graphic.get_window().subsystem().gl_release_current_context().unwrap_or_else(|err| panic!("Release Context Error: {:?}", err));
+                        // sdl_graphic.get_window().gl_set_context_to_current().unwrap_or_else(|err| panic!("Set Context To Current Error: {:?}", err));
+                        sdl_graphic.get_window().gl_make_current(sdl_graphic.get_gl_context()).unwrap_or_else(|err| panic!("Make Current Error: {:?}", err));
+                    }
+                    warn!("After: {:?}", sdl_graphic.get_gl_context().is_current());
                     // warn!("Flushing Encoder");
                     encoder.flush(sdl_graphic.get_mut_device());
                     // warn!("Sending Encoder Back");

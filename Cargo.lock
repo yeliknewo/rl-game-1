@@ -805,6 +805,7 @@ dependencies = [
  "event 0.1.0",
  "graphics 0.1.0",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "math 0.1.0",
  "utils 0.1.0",
 ]
 
