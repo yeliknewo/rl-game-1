@@ -5,11 +5,11 @@ authors = ["Kiley Owen <yelikdev@gmail.com>"]
 
 [dependencies]
 # art = { path="../art" }
-components = { path="../components" }
+# components = { path="../components" }
 # core = { path="../core" }
 dependencies = { path="../dependencies" }
 # event = { path="../event" }
 # graphics = { path="../graphics" }
 # math = { path="../math" }
 # systems = { path="../systems" }
-# utils = { path="../utils" }
+utils = { path="../utils" }

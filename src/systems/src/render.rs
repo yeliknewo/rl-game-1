@@ -1,11 +1,11 @@
-use std::sync::{Arc};
+use std::collections::{HashMap};
 
 use specs::{System, RunArg};
 
-use components::{RenderId, Transform, Camera, RenderData, WindowId};
+use components::{RenderId, Transform, Camera, RenderData};
 use event::{BackChannel, WindowedEvent};
 use graphics::{OutColor, OutDepth, Encoder, Bundle, Shaders, make_shaders, ProjectionData, TextureData, GlFactory, Packet, RlTexture, Primitive, pipe, FilterMethod, WrapMode, SamplerInfo, FactoryExt, Factory};
-use utils::{Delta};
+use utils::{Delta, WindowId};
 
 pub enum ToRender {
     GraphicsData(OutColor, OutDepth),
@@ -36,6 +36,7 @@ impl RenderSystem {
     fn render(&mut self, arg: &RunArg, window_id: WindowId, mut encoder: Encoder) {
         use specs::Join;
 
+        // warn!("Starting Render");
         let (render_ids, transforms, mut cameras, mut render_datas) = arg.fetch(|w|
             (
                 w.read::<RenderId>(),
@@ -45,25 +46,15 @@ impl RenderSystem {
             )
         );
 
-        // match window_id {
-        //     WindowId::First => {
-        //         warn!("rendering to first window");
-        //     },
-        //     WindowId::Second => {
-        //         warn!("rendering to second window");
-        //     },
-        // }
+        let out = self.sys.outs.get(&window_id).unwrap_or_else(|| panic!("Unable to find Outs for: {:?}", window_id));
 
-        match window_id {
-            WindowId::First => {
-                encoder.clear(&self.sys.out_color_1, [1.0, 1.0, 1.0, 1.0]);
-                encoder.clear_depth(&self.sys.out_depth_1, 1.0);
-            },
-            WindowId::Second => {
-                encoder.clear(&self.sys.out_color_2, [0.5, 0.5, 0.5, 1.0]);
-                encoder.clear_depth(&self.sys.out_depth_2, 1.0);
-            },
+        if window_id.0 == 1 {
+            encoder.clear(&out.0, [1.0, 0.0, 0.0, 1.0]);
+        } else {
+            encoder.clear(&out.0, [0.0, 0.0, 1.0, 1.0]);
         }
+
+        encoder.clear_depth(&out.1, 1.0);
 
         let (view, proj, dirty_cam) = {
             let mut camera = {
@@ -84,6 +75,10 @@ impl RenderSystem {
         let mut datas = vec!();
 
         for (render_id, transform, mut render_data) in (&render_ids, &transforms, &mut render_datas).iter() {
+            if render_id.clone_window_id() != window_id {
+                // warn!("Render Ids: {:?}, {:?}", render_id.clone_window_id(), &window_id);
+                continue;
+            }
             let mut projection_data = None;
 
             if dirty_cam {
@@ -110,67 +105,34 @@ impl RenderSystem {
                 );
             }
 
-            datas.push((render_id.0, render_data.get_layer(), texture_data, projection_data));
+            datas.push((render_id.get_render_id_num(), render_data.get_layer(), texture_data, projection_data));
         }
 
         datas.sort_by_key(|k| k.1);
 
-        match window_id {
-            WindowId::First => {
-                for data in datas {
-                    let b = &self.sys.bundles_1[data.0];
+        for data in datas {
+            let b = &self.sys.bundles_map.get(&window_id).unwrap_or_else(|| panic!("Can't find Bundle Vec for: {:?}", &window_id)).get(data.0).unwrap_or_else(|| panic!("Can't find bundle of: {:?}", data.0));
 
-                    if let Some(texture_data) = data.2 {
-                        encoder.update_constant_buffer(&b.data.texture_data, &texture_data);
-                    }
+            if let Some(texture_data) = data.2 {
+                encoder.update_constant_buffer(&b.get_data().texture_data, &texture_data);
+            }
 
-                    if let Some(projection_data) = data.3 {
-                        encoder.update_constant_buffer(&b.data.projection_data, &projection_data);
-                    }
+            if let Some(projection_data) = data.3 {
+                encoder.update_constant_buffer(&b.get_data().projection_data, &projection_data);
+            }
 
-                    b.encode(&mut encoder);
-                }
-            },
-            WindowId::Second => {
-                for data in datas {
-                    let b = &self.sys.bundles_2[data.0];
-
-                    if let Some(texture_data) = data.2 {
-                        encoder.update_constant_buffer(&b.data.texture_data, &texture_data);
-                    }
-
-                    if let Some(projection_data) = data.3 {
-                        encoder.update_constant_buffer(&b.data.projection_data, &projection_data);
-                    }
-
-                    b.encode(&mut encoder);
-                }
-            },
+            b.encode(&mut encoder);
         }
 
         self.back_channel.send_from((window_id, FromRender::Encoder(encoder)));
     }
 
     fn set_graphics_data(&mut self, window_id: WindowId, out_color: OutColor, out_depth: OutDepth) {
-        match window_id {
-            WindowId::First => {
-                self.sys.out_color_1 = out_color;
-                self.sys.out_depth_1 = out_depth;
+        *self.sys.outs.get_mut(&window_id).unwrap_or_else(|| panic!("Can't find out for window id: {:?}", window_id)) = (out_color.clone(), out_depth.clone());
 
-                for bundle in Arc::get_mut(&mut self.sys.bundles_1).unwrap() {
-                    bundle.data.out_color = self.sys.out_color_1.clone();
-                    bundle.data.out_depth = self.sys.out_depth_1.clone();
-                }
-            },
-            WindowId::Second => {
-                self.sys.out_color_2 = out_color;
-                self.sys.out_depth_2 = out_depth;
-
-                for bundle in Arc::get_mut(&mut self.sys.bundles_2).unwrap() {
-                    bundle.data.out_color = self.sys.out_color_2.clone();
-                    bundle.data.out_depth = self.sys.out_depth_2.clone();
-                }
-            },
+        for mut bundle in self.sys.bundles_map.get_mut(&window_id).unwrap_or_else(|| panic!("Can't find Bundle Vec for: {:?}", window_id)) {
+            bundle.get_mut_data().out_color = out_color.clone();
+            bundle.get_mut_data().out_depth = out_depth.clone();
         }
     }
 
@@ -189,42 +151,17 @@ impl RenderSystem {
 }
 
 pub struct RenderSystemSend {
-    out_color_1: OutColor,
-    out_depth_1: OutDepth,
-    out_color_2: OutColor,
-    out_depth_2: OutDepth,
-    bundles_1: Arc<Vec<Bundle>>,
-    bundles_2: Arc<Vec<Bundle>>,
+    outs: HashMap<WindowId, (OutColor, OutDepth)>,
+    bundles_map: HashMap<WindowId, Vec<Bundle>>,
     shaders: Shaders,
 }
 
 impl RenderSystemSend {
-    pub fn new(out_color_1: OutColor, out_depth_1: OutDepth, out_color_2: OutColor, out_depth_2: OutDepth) -> RenderSystemSend {
-        // warn!("Starting New Render System");
-        // let (mut first, mut second) = (None, None);
-        //
-        // warn!("Waiting For Init Values From Back Channel");
-        // while first.is_none() || second.is_none() {
-        //     match back_channel.recv_to() {
-        //         (WindowId::First, ToRender::GraphicsData(out_color, out_depth)) => first = Some((out_color, out_depth)),
-        //         (WindowId::Second, ToRender::GraphicsData(out_color, out_depth)) => second = Some((out_color, out_depth)),
-        //         _ => panic!("got the wrong values in channel when starting render system"),
-        //     }
-        // }
-
+    pub fn new(outs: HashMap<WindowId, (OutColor, OutDepth)>) -> RenderSystemSend {
         warn!("Creating Render System Struct");
         RenderSystemSend {
-            // back_channel: back_channel,
-            // out_color_1: first.as_ref().unwrap().0.clone(),
-            // out_depth_1: first.unwrap().1,
-            // out_color_2: second.as_ref().unwrap().0.clone(),
-            // out_depth_2: second.unwrap().1,
-            out_color_1: out_color_1,
-            out_depth_1: out_depth_1,
-            out_color_2: out_color_2,
-            out_depth_2: out_depth_2,
-            bundles_1: Arc::new(Vec::new()),
-            bundles_2: Arc::new(Vec::new()),
+            outs: outs,
+            bundles_map: HashMap::new(),
             shaders: make_shaders(),
         }
     }
@@ -235,67 +172,59 @@ impl RenderSystemSend {
         packet: &Packet,
         texture: RlTexture
     ) -> RenderId {
-        let shader_set = factory.create_shader_set(self.shaders.get_vertex_shader(), self.shaders.get_fragment_shader()).unwrap();
+        warn!("Creating Shader Set");
+        let shader_set = factory.create_shader_set(self.shaders.get_vertex_shader(), self.shaders.get_fragment_shader()).unwrap_or_else(|err| panic!("Create Shader Set Error: {:?}", err));
 
-        let program = factory.create_program(&shader_set).unwrap();
+        warn!("Creating Program");
+        let program = factory.create_program(&shader_set).unwrap_or_else(|err| panic!("Create Program Error: {:?}", err));
 
+        warn!("Creating Pipeline from Program");
         let pso = factory.create_pipeline_from_program(
             &program,
             Primitive::TriangleList,
             packet.get_rasterizer(),
             pipe::new()
-        ).unwrap();
+        ).unwrap_or_else(|err| panic!("Create Pipeline from Program Error: {:?}", err));
 
+        warn!("Creating Sampler Info");
         let sampler_info = SamplerInfo::new(
             FilterMethod::Scale,
             WrapMode::Mirror,
         );
 
+        warn!("Creating Vertex Buffer");
         let (vbuf, slice) = factory.create_vertex_buffer_with_slice(packet.get_vertices(), packet.get_indices());
 
-        let data = {
-            match window_id {
-                WindowId::First => {
-                    pipe::Data {
-                        vbuf: vbuf,
-                        spritesheet: (texture, factory.create_sampler(sampler_info)),
-                        texture_data: factory.create_constant_buffer(1),
-                        projection_data: factory.create_constant_buffer(1),
-                        out_color: self.out_color_1.clone(),
-                        out_depth: self.out_depth_1.clone(),
-                    }
-                },
-                WindowId::Second => {
-                    pipe::Data {
-                        vbuf: vbuf,
-                        spritesheet: (texture, factory.create_sampler(sampler_info)),
-                        texture_data: factory.create_constant_buffer(1),
-                        projection_data: factory.create_constant_buffer(1),
-                        out_color: self.out_color_2.clone(),
-                        out_depth: self.out_depth_2.clone(),
-                    }
-                },
+        warn!("Creating Pipe Data");
+        let data = pipe::Data {
+            vbuf: vbuf,
+            spritesheet: (texture, factory.create_sampler(sampler_info)),
+            texture_data: factory.create_constant_buffer(1),
+            projection_data: factory.create_constant_buffer(1),
+            out_color: self.outs.get(&window_id).unwrap_or_else(|| panic!("Can't find outs for: {:?}", window_id)).0.clone(),
+            out_depth: self.outs.get(&window_id).unwrap_or_else(|| panic!("Can't find outs for: {:?}", window_id)).1.clone(),
+        };
+
+        warn!("Creating Id");
+
+
+        warn!("Getting Bundles as Mutable");
+        let mut bundles = {
+            if self.bundles_map.get(&window_id).is_some() {
+                self.bundles_map.get_mut(&window_id).unwrap_or_else(|| panic!("Can't find Bundle Vec for: {:?}", window_id))
+            } else {
+                self.bundles_map.insert(window_id.clone(), vec!());
+                self.bundles_map.get_mut(&window_id).unwrap_or_else(|| panic!("Can't find Bundle Vec for: {:?}", window_id))
             }
         };
 
-        let id = {
-            match window_id {
-                WindowId::First => {
-                    let id = self.bundles_1.len();
-                    let mut bundles = Arc::get_mut(&mut self.bundles_1).unwrap();
-                    bundles.push(Bundle::new(slice, pso, data));
-                    id
-                },
-                WindowId::Second => {
-                    let id = self.bundles_2.len();
-                    let mut bundles = Arc::get_mut(&mut self.bundles_2).unwrap();
-                    bundles.push(Bundle::new(slice, pso, data));
-                    id
-                }
-            }
-        };
+        let id = bundles.len();
 
-        RenderId(id)
+        warn!("Adding new bundle to Bundles");
+        bundles.push(Bundle::new(slice, pso, data));
+
+        warn!("Returning Render Id");
+        RenderId::new(window_id.clone(), id)
     }
 }
 

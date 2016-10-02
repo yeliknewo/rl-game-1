@@ -9,6 +9,7 @@ use utils::{Delta, FpsCounter};
 
 use self::specs::{World, Planner};
 use self::time::{precise_time_ns};
+use ::{RenderIds};
 
 pub struct Game {
     planner: Planner<Delta>,
@@ -18,8 +19,7 @@ pub struct Game {
 
 impl Game {
     pub fn new(
-        render_ids_1: Vec<RenderId>,
-        render_ids_2: Vec<RenderId>,
+        render_ids: RenderIds,
         render_system_send: RenderSystemSend,
         render_back_channel: BackChannel<WindowedToRender, WindowedFromRender>,
         control_back_channel: BackChannel<WindowedToControl, WindowedFromControl>,
@@ -51,17 +51,16 @@ impl Game {
             ))
             .build();
 
-        planner.mut_world().create_now()
-            .with(render_ids_1[0])
-            .with(Transform::new_identity())
-            .with(RenderData::new(layers::TILES, *tiles::DEFAULT_TINT, tiles::EMPTY, tiles::SIZE))
-            .build();
 
-        planner.mut_world().create_now()
-            .with(render_ids_2[0])
-            .with(Transform::new_identity())
-            .with(RenderData::new(layers::TILES, *tiles::DEFAULT_TINT, tiles::EMPTY, tiles::SIZE))
-            .build();
+
+        for (_, render_id) in &render_ids {
+            warn!("Render Id: {:?}", render_id);
+            planner.mut_world().create_now()
+                .with(render_id.clone())
+                .with(Transform::new_identity())
+                .with(RenderData::new(layers::TILES, tiles::DEFAULT_TINT.clone(), tiles::EMPTY, tiles::SIZE))
+                .build();
+        }
 
         warn!("Adding Control System");
         planner.add_system(

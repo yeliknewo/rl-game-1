@@ -224,8 +224,8 @@ dependencies = [
 name = "event"
 version = "0.1.0"
 dependencies = [
- "components 0.1.0",
  "dependencies 0.1.0",
+ "utils 0.1.0",
 ]
 
 [[package]]
@@ -392,8 +392,10 @@ dependencies = [
 name = "graphics"
 version = "0.1.0"
 dependencies = [
+ "components 0.1.0",
  "dependencies 0.1.0",
  "gfx 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "utils 0.1.0",
 ]
 

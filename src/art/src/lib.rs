@@ -19,14 +19,26 @@ pub fn make_square_render() -> Packet {
     Packet::new(vertices, indices, rasterizer)
 }
 
+pub type RenderType = u8;
+pub type Layer = u8;
+pub type Name = &'static str;
+pub type Size = &'static [f32; 2];
+pub type Tint = &'static [f32; 4];
+pub type Sprite = &'static [f32; 4];
+
 pub mod layers {
-    pub const TILES: u8 = 0;
+    use ::{Layer};
+
+    pub const TILES: Layer = 0;
 }
 
 pub mod tiles {
-    pub const NAME: &'static str = "tiles.png";
-    pub const SIZE: &'static [f32; 2] = &[256.0, 256.0];
-    pub const DEFAULT_TINT: &'static [f32; 4] = &[0.5, 0.5, 0.5, 1.0];
+    use ::{Name, Size, Tint, RenderType, Sprite};
 
-    pub const EMPTY: &'static [f32; 4] = &[0.0, 0.0, 32.0, 31.5];
+    pub const NAME: Name = "tiles.png";
+    pub const SIZE: Size = &[256.0, 256.0];
+    pub const DEFAULT_TINT: Tint = &[0.5, 0.5, 0.5, 1.0];
+    pub const ID: RenderType = 0;
+
+    pub const EMPTY: Sprite = &[0.0, 0.0, 32.0, 31.5];
 }

@@ -6,6 +6,7 @@ use ::{Resources, CommandBuffer, Shaders};
 pub type Index = u32;
 
 pub fn make_shaders() -> Shaders {
+    warn!("Making Shaders");
     Shaders::new("spritesheet_150_v.glsl", "spritesheet_150_f.glsl")
 }
 
@@ -55,7 +56,7 @@ impl Vertex {
 pub struct Bundle {
     slice: Slice<Resources>,
     pso: PipelineState<Resources, pipe::Meta>,
-    pub data: pipe::Data<Resources>,
+    data: pipe::Data<Resources>,
 }
 
 impl Bundle {
@@ -69,6 +70,14 @@ impl Bundle {
             pso: pso,
             data: data,
         }
+    }
+
+    pub fn get_data(&self) -> &pipe::Data<Resources> {
+        &self.data
+    }
+
+    pub fn get_mut_data(&mut self) -> &mut pipe::Data<Resources> {
+        &mut self.data
     }
 
     pub fn encode(&self, encoder: &mut Encoder<Resources, CommandBuffer>) {
